@@ -1,0 +1,317 @@
+
+ html {
+ font-size: 62.5%;
+
+}
+header {
+    background: url(https://images.pexels.com/photos/37728/pexels-photo-37728.jpeg?cs=srgb&dl=pexels-snapwire-37728.jpg&fm=jpg) no-repeat;
+    height:100vh;
+    width:100%;
+    background-size:cover;
+    background-position: center;
+}
+p{
+  vertical-align: top;
+  text-align: center;
+  margin-top: 10px;
+  color: white;
+}
+
+h1{
+    text-align: center;
+    color: #fff;
+    font-family: lobster;
+    font-size: 208px;
+    margin: 0;
+    position: relative;
+    top: 400px;
+    letter-spacing: 5px;
+    width:100%;
+}
+
+.image1{
+    background : url(https://media.istockphoto.com/id/626787550/photo/planet-earth-from-above.jpg?s=612x612&w=0&k=20&c=jW5Xf3SoQ3nzEmFRYHbZ6ITPm-8kJFIzG7EZN1RbIOQ=)no-repeat;
+    height: 2000px;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    width:100%;
+}
+
+.box {
+    position: relative;
+    width: auto;
+    height: 720px;
+    transform: translate(-50%,-50%);    
+    top: 50%;
+    left: 50%;
+    background: rgba(0, 0, 0, 0.3);
+    text-align: center;
+    color: white;
+    line-height: 24px;
+    font-family: sans-serif;
+    font-weight: 100;
+    padding: 56px;
+  
+}
+
+h2 {
+  font-size: 40px;
+  letter-spacing: 2.5px;
+  margin: 20px auto;          /* авто-отступы = центрирование */
+  font-family: 'Xanh Mono', monospace;
+  -webkit-text-stroke: 1px white;
+  color: black;
+  line-height: 1.5;
+  max-width: 900px;           /* ограничиваем ширину текста */
+  text-align: justify;        /* выравнивание по ширине */
+}
+
+.learn {
+  letter-spacing: 2.5px;
+  font-family: 'Xanh Mono', monospace;
+  -webkit-text-stroke: 1px white;
+  color: black;
+  line-height: 1.5;
+  text-align: justify;
+  background-color: transparent;   /* прозрачный фон */
+  color: white;                    /* белый текст */
+  border: 2px solid white;         /* белая рамка */
+  border-radius: 4px;              
+  cursor: pointer;
+  transition: 0.3s;
+  max-width: 240px;
+height: 40px;
+display:flex;
+align-items: center;
+}
+
+.learn:hover {
+  background-color: rgba(255,255,255,0.1); /* лёгкий белый фон при наведении */
+}
+
+
+.date{
+    font-size: 32px;
+     opacity: 0.7;
+}
+
+.text{
+    font-size:30.5px;
+    letter-spacing: 2.5px;
+    margin: 5px;
+    position: absolute;
+  font-family: 'Xanh Mono', monospace;
+}
+
+.learn{
+    background: transparent;
+    margin-top: 80px;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 40px;
+    font-weight: 500;
+    width: 400px;
+    transition : all 0.4s ease-in;
+    font-size: 29px;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+}
+
+.learn:hover{
+    background:rgba(255,255,255,0.9);
+    color: black;
+}
+
+
+
+
+.image3{
+    background : url(https://www.nasa.gov/wp-content/uploads/2023/09/astronaut.jpg)no-repeat;
+    height: 1728px;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    width: 100%;
+
+}
+
+/*anim*/
+.box1{
+    opacity: 0;
+    transition : all 0.4s linear;
+}
+
+.box2{
+    opacity: 0;
+    transition : all 0.4s linear;
+}
+
+.box3{
+    opacity: 0;
+    transition : all 0.4s linear;
+}
+
+.fade-in{
+    opacity: 1;
+}
+.wrapper{
+	max-width: 2000px;
+	margin: 0 auto;
+	padding:  50px;
+	
+}
+
+a{
+	color: white;
+	text-decoration: none;
+background-color: rgba(30,30,30);
+display: inline-block;
+padding: 20px 5px;
+width: 100%;
+text-align: center;
+font-weight: 100;
+font-size: 15px;
+letter-spacing: 5px;
+}
+
+a:hover{
+	background:rgba(0,0,0,0.3);
+}
+
+
+body{
+    margin: 0;
+    padding: 0;
+  background-color: rgb(10,10,10);
+}
+
+.flex-nav ul{
+    position: relative;
+    z-index: 10;
+	display: flex;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.flex-nav li{
+	flex-grow: 3;
+}
+
+.flex-nav .social{
+	flex-grow: 1;
+}
+
+@media all and (max-width: 500px){
+
+	
+}
+.dropbtn {
+    background-color: rgb(30,30,30);
+    color: white;
+    padding: 19px;
+    font-size: 16px;
+    border: none;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    right: 0px;
+}
+
+.dropdown-content a {
+    color: white;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+
+}
+
+.dropdown-content a:hover {background-color: #ddd;}
+
+.dropdown:hover .dropdown-content {display: block;}
+
+.dropdown:hover .dropbtn {background-color: #3e8e41;}
+
+}
+
+ 
+
+    .team-section {
+      max-width: 1000px;
+      margin: 80px auto;
+      padding: 0 20px;
+    }
+
+    .team-section h2 {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      margin-bottom: 30px;
+      color: #fff;
+    }
+
+    .team-description {
+      text-align: center;
+      color: #d5d5d5;
+      font-size: 16px;
+      line-height: 1.8;
+      max-width: 800px;
+      margin: 0 auto 60px;
+      background: #161616;
+      padding: 25px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+
+    .team-list {
+        z-index: -10;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .member {
+      background: #181818;
+      border-left: 4px solid #444;
+      padding: 25px 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .member:hover {
+      transform: translateY(-5px);
+      border-color: #888;
+    }
+
+    .member h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      margin: 0 0 8px;
+      color: #fff;
+    }
+
+    .member p.role {
+      color: #ccc;
+      font-size: 15px;
+      margin: 0 0 10px;
+      font-style: italic;
+    }
+
+    .member p.desc {
+      color: #bbb;
+      font-size: 14px;
+      line-height: 1.6;
+    }
