@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<!--
+  English version of the interactive map showing the impact of climate anomalies on the course of hostilities.
+  This version uses the Leaflet library with OpenStreetMap base tiles and NASA GIBS overlays.
+  The control panel allows users to navigate through time, filter events by season, choose a NASA layer
+  and view a list of events. All text labels are translated into English.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Map — Climate Anomalies and War</title>
+  <!-- Main styles for layout and dark theme -->
+  <link rel="stylesheet" href="style.css">
+  <!-- Override styles for form controls to improve readability (white backgrounds) -->
+  <link rel="stylesheet" href="style-map-fix.css">
+  <!-- Leaflet CSS with fallback -->
+  <link id="leaflet-css" rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+      onerror="this.href='https://unpkg.com/leaflet/dist/leaflet.css'">
+</head>
+<body>
+  <!-- Fixed navigation bar -->
+  <nav class="flex-nav">
+    <ul>
+      <li><a href="../indexeng.html">Home</a></li>
+      <li><a href="../abouteng.html">About</a></li>
+      <li><a href="map_en.html">Map</a></li>
+      <!-- Language switcher: link to the Ukrainian version of the map -->
+      <li class="lang-switch"><a href="map.html">UA</a></li>
+    </ul>
+  </nav>
+
+  <!-- Map container -->
+  <div id="mapContainer">
+    <div id="map"></div>
+  </div>
+
+  <!-- Control panel for timeline, categories and NASA layers -->
+  <div class="control-panel">
+    <div class="timeline-controls">
+      <div class="timeline-buttons">
+        <button id="playPauseBtn" title="Play/Pause">▶</button>
+        <button id="stepBackwardBtn" title="Step backward">⏮</button>
+        <button id="stepForwardBtn" title="Step forward">⏭</button>
+      </div>
+      <label for="timeUnit">Time unit:</label>
+      <select id="timeUnit">
+        <option value="month">Month</option>
+        <option value="season">Season</option>
+        <option value="year">Year</option>
+      </select>
+      <input type="range" id="timeSlider" min="0" max="48" step="1" value="0">
+      <div id="timeLabel" class="time-label">---</div>
+    </div>
+    <div class="category-filter">
+      <label for="categorySelect">Category:</label>
+      <select id="categorySelect">
+        <option value="all">All</option>
+        <option value="warm">Warm season</option>
+        <option value="cold">Cold season</option>
+        <option value="mixed">Mixed</option>
+      </select>
+    </div>
+    <div class="instrument-filter">
+      <label for="instrumentSelect">NASA layer:</label>
+      <select id="instrumentSelect">
+        <option value="none">No NASA layer</option>
+        <option value="modis">MODIS (True Color)</option>
+        <option value="ceres">CERES (Radiation)</option>
+        <option value="mopitt">MOPITT (CO)</option>
+        <option value="misr">MISR (Aerosols)</option>
+        <option value="aster">ASTER (Topography)</option>
+        <!-- Weather-related layers -->
+        <option value="precip">IMERG Precipitation</option>
+        <option value="temperature">Surface Temperature</option>
+        <option value="snow">Snow Cover</option>
+        <option value="cloud">Cloud Optical Thickness</option>
+      </select>
+    </div>
+    <div id="eventList" class="event-list"></div>
+  </div>
+
+  <!-- Leaflet JS with fallback -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+    onerror="var s=document.createElement('script');s.src='https://unpkg.com/leaflet/dist/leaflet.js';document.head.appendChild(s);">
+  </script>
+  <!-- Main script for English map -->
+  <script src="js/leaflet_map_en.js"></script>
+</body>
+</html>
