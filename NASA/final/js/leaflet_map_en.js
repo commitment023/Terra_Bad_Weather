@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Ukraine',
       location: { lat: 49.5, lon: 31.3 },
       description: 'The spring mud season (rasputitsa) in Eastern Europe in 2022 significantly affected the logistics of military operations.',
-      source: 'https://example.com/rasputitsa-2022'
+      source: 'https://cliffmass.blogspot.com/2022/03/mud-season-in-ukraine.html'
     },
     {
       id: 2,
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Iraq',
       location: { lat: 32.5, lon: 44.4 },
       description: 'Prolonged heat in July 2023 affected combat operations, causing problems with water supply and equipment.',
-      source: 'https://example.com/heatwave-2023'
+      source: 'https://www.reuters.com/business/environment/july-2023-set-be-worlds-hottest-month-record-scientists-2023-07-27/'
     },
     {
       id: 3,
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Sudan',
       location: { lat: 15.6, lon: 32.5 },
       description: 'In 2021, severe floods across Sudan destroyed infrastructure and complicated the conduct of hostilities.',
-      source: 'https://example.com/floods-2021'
+      source: 'https://reliefweb.int/report/sudan/sudan-floods-flash-update-no-05-9-august-2021-enar'
     },
     {
       id: 4,
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Mali',
       location: { lat: 17.5, lon: -3.0 },
       description: 'A drought in the Sahel region in 2024 led to water shortages, affecting the ability to carry out military operations.',
-      source: 'https://example.com/drought-2024'
+      source: 'https://www.worldweatherattribution.org/extreme-sahel-heatwave-that-hit-highly-vulnerable-population-at-the-end-of-ramadan-would-not-have-occurred-without-climate-change/'
     },
     {
       id: 5,
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Georgia',
       location: { lat: 42.3, lon: 43.4 },
       description: 'At the beginning of 2025, heavy snowstorms in the Caucasus mountains created difficulties for the movement of military equipment.',
-      source: 'https://example.com/snowstorms-2025'
+      source: 'https://1tv.ge/lang/en/news/avalanche-hazard-forces-temporary-road-closure-on-gudauri-kobi-section/'
     },
     {
       id: 6,
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Ukraine',
       location: { lat: 46.8, lon: 32.8 },
       description: 'On June 6 2023, the destruction of the Kakhovka dam triggered a powerful wave and floods that flooded thousands of homes, forced people to evacuate and disrupted water and energy supplies.',
-      source: 'https://wedocs.unep.org/handle/20.500.11822/43227'
+      source: 'https://www.reuters.com/world/europe/ukraine-says-russia-blows-up-major-nova-kakhovka-dam-southern-ukraine-2023-06-06/'
     },
     {
       id: 8,
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Ukraine',
       location: { lat: 48.5, lon: 32.0 },
       description: 'In 2023–2024, severe frosts (below –10 °C) combined with damaged energy networks and infrastructure increased health risks and complicated the logistics of military operations.',
-      source: 'https://www.who.int/docs/default-source/ukraine/2023-2024-winter-risk-assessment.pdf'
+      source: 'https://www.unicef.org/press-releases/escalation-attacks-infrastructure-leaves-ukraines-children-without-sustained-access'
     },
     {
       id: 9,
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Ukraine',
       location: { lat: 48.0, lon: 37.8 },
       description: 'In September–October 2024, rainy conditions created roads too muddy for effective ground operations and limited the use of aerial reconnaissance.',
-      source: 'https://www.acaps.org/fileadmin/Data_Product/Main_media/20240817_ACAPS_Briefing_note_Humanitarian_impact_of_increased_hostilities_in_Donetska_oblast.pdf'
+      source: 'https://www.criticalthreats.org/analysis/russian-offensive-campaign-assessment-october-9-2024'
     }
   ];
 

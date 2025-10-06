@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Україна',
       location: { lat: 49.5, lon: 31.3 },
       description: 'Весняне бездоріжжя (распутиця) у Східній Європі у 2022 році суттєво вплинуло на логістику військових операцій.',
-      source: 'https://example.com/rasputitsa-2022'
+      source: 'https://war.obozrevatel.com/ukr/vid-voroga-zahischae-navit-ukrainska-zemlya-chotiri-tanki-okupantiv-na-sumschini-zastryagli-u-bagnyutsi-video.htm'
     },
     {
       id: 2,
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Ірак',
       location: { lat: 32.5, lon: 44.4 },
       description: 'Тривала спека у липні 2023 року вплинула на бойові дії, спричинивши проблеми із забезпеченням водою та технікою.',
-      source: 'https://example.com/heatwave-2023'
+      source: 'https://zaborona.com/lypen-2023-roku-stane-najgaryachishym-za-45-rokiv-pro-shho-cze-nam-kazhe/'
     },
     {
       id: 3,
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Судан',
       location: { lat: 15.6, lon: 32.5 },
       description: 'У 2021 році сильні повені на території Судану зруйнували інфраструктуру та ускладнили проведення бойових дій.',
-      source: 'https://example.com/floods-2021'
+      source: 'https://day.kyiv.ua/news/271221-vnaslidok-poveney-i-sylnykh-zlyv-v-sudani-zahynulo-shchonaymenshe-60-osib'
     },
     {
       id: 4,
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Малі',
       location: { lat: 17.5, lon: -3.0 },
       description: 'Посуха у регіоні Сахель у 2024 році призвела до нестачі води, що вплинуло на здатність здійснювати військові операції.',
-      source: 'https://example.com/drought-2024'
+      source: 'https://www.worldweatherattribution.org/extreme-sahel-heatwave-that-hit-highly-vulnerable-population-at-the-end-of-ramadan-would-not-have-occurred-without-climate-change/'
     },
     {
       id: 5,
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Грузія',
       location: { lat: 42.3, lon: 43.4 },
       description: 'На початку 2025 року сильні снігові бурі в горах Кавказу створили труднощі для руху військової техніки.',
-      source: 'https://example.com/snowstorms-2025'
+      source: 'https://1tv.ge/lang/en/news/avalanche-hazard-forces-temporary-road-closure-on-gudauri-kobi-section/'
     },
     // Додані події в Україні та навколишніх регіонах для кращого висвітлення кліматичних аномалій.
     {
@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Україна',
       location: { lat: 46.8, lon: 32.8 },
       description: '6 червня 2023 року зруйнування Каховської дамби спричинило потужну хвилю та повені, які затопили тисячі будинків, змусили людей до евакуації та порушили водо- та енергопостачання.',
-      source: 'https://wedocs.unep.org/handle/20.500.11822/43227'
+      source: 'https://suspilne.media/kherson/647518-podia-2023-roku-pidriv-kahovskoi-ges-ta-jogo-naslidki-dla-hersonsini/'
     },
     {
       id: 8,
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Україна',
       location: { lat: 48.5, lon: 32.0 },
       description: 'У 2023–2024 роках сильні морози (нижче −10°C) у поєднанні з пошкодженими енергетичними мережами та інфраструктурою призвели до зростання ризиків для здоров’я та ускладнили логістику військових операцій.',
-      source: 'https://www.who.int/docs/default-source/ukraine/2023-2024-winter-risk-assessment.pdf'
+      source: 'https://suspilne.media/631008-minenergo-v-ukraini-znestrumleni-ponad-900-naselenih-punktiv/'
     },
     {
       id: 9,
@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function () {
       country: 'Україна',
       location: { lat: 48.0, lon: 37.8 },
       description: 'У вересні–жовтні 2024 року дощові умови створили занадто брудні дороги, що унеможливило ефективні наземні операції та обмежило використання аеророзвідки.',
-      source: 'https://www.acaps.org/fileadmin/Data_Product/Main_media/20240817_ACAPS_Briefing_note_Humanitarian_impact_of_increased_hostilities_in_Donetska_oblast.pdf'
+      source: 'https://www.pravda.com.ua/eng/news/2024/10/10/7478983/'
     }
   ];
 

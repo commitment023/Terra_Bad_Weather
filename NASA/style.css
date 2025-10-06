@@ -6,6 +6,7 @@
 header {
     background: url(https://images.pexels.com/photos/37728/pexels-photo-37728.jpeg?cs=srgb&dl=pexels-snapwire-37728.jpg&fm=jpg) no-repeat;
     height:100vh;
+    vertical-align: top;
     width:100%;
     background-size:cover;
     background-position: center;
@@ -24,7 +25,7 @@ h1{
     font-size: 208px;
     margin: 0;
     position: relative;
-    top: 400px;
+    top: 20px;
     letter-spacing: 5px;
     width:100%;
 }
