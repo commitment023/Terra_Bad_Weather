@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<!--
+  Сторінка з інтерактивною картою, що демонструє вплив кліматичних аномалій на хід бойових дій.
+  На цій версії карта реалізована на основі бібліотеки Leaflet і використовує
+  базові плитки OpenStreetMap, а також шари з NASA GIBS (MODIS, CERES, MOPITT, MISR, ASTER).
+  Панель керування дозволяє перемотувати час, фільтрувати події за сезоном,
+  вибирати шар NASA та переглядати список подій.
+-->
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Карта — Кліматичні аномалії та війна</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Override styles for form controls on the map control panel to improve readability -->
+  <link rel="stylesheet" href="style-map-fix.css">
+  <!-- Підключаємо CSS Leaflet для інтерактивної карти -->
+  <link id="leaflet-css" rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+      onerror="this.href='https://unpkg.com/leaflet/dist/leaflet.css'">
+</head>
+<body>
+  <!-- Фіксована навігаційна панель -->
+  <nav class="flex-nav">
+    <ul>
+      <li><a href="../2index.html">Головна</a></li>
+      <li><a href="../abouteng.html">Про нас</a></li>
+      <li><a href="../map.html">Карта</a></li>
+      <!-- Language switcher: link to the English version of the map -->
+      <li class="lang-switch"><a href="map_en.html">EN</a></li>
+    </ul>
+  </nav>
+
+  <!-- Контейнер карти та шарів -->
+  <div id="mapContainer">
+    <!-- Елемент для Leaflet‑карти. Висота та ширина задаються у CSS -->
+    <div id="map"></div>
+  </div>
+
+  <!-- Панель керування для таймлайна, категорій та шарів -->
+  <div class="control-panel">
+    <div class="timeline-controls">
+      <div class="timeline-buttons">
+        <button id="playPauseBtn" title="Відтворити/Пауза">▶</button>
+        <button id="stepBackwardBtn" title="Крок назад">⏮</button>
+        <button id="stepForwardBtn" title="Крок вперед">⏭</button>
+      </div>
+      <label for="timeUnit">Одиниця часу:</label>
+      <select id="timeUnit">
+        <option value="month">Місяць</option>
+        <option value="season">Сезон</option>
+        <option value="year">Рік</option>
+      </select>
+      <input type="range" id="timeSlider" min="0" max="48" step="1" value="0">
+      <div id="timeLabel" class="time-label">---</div>
+    </div>
+    <div class="category-filter">
+      <label for="categorySelect">Категорія:</label>
+      <select id="categorySelect">
+        <option value="all">Усі</option>
+        <option value="warm">Тепла пора</option>
+        <option value="cold">Холодна пора</option>
+        <option value="mixed">Змішані</option>
+      </select>
+    </div>
+    <div class="instrument-filter">
+      <label for="instrumentSelect">Шар NASA:</label>
+      <select id="instrumentSelect">
+        <option value="none">Без шару NASA</option>
+        <option value="modis">MODIS (True Color)</option>
+        <option value="ceres">CERES (Radiation)</option>
+        <option value="mopitt">MOPITT (CO)</option>
+        <option value="misr">MISR (Aerosols)</option>
+        <option value="aster">ASTER (Topography)</option>
+        <!-- New weather-related layers from NASA GIBS for precipitation, temperature, snow cover and clouds -->
+        <option value="precip">IMERG Precipitation</option>
+        <option value="temperature">Surface Temperature</option>
+        <option value="snow">Snow Cover</option>
+        <option value="cloud">Cloud Optical Thickness</option>
+      </select>
+    </div>
+    <div id="eventList" class="event-list"></div>
+  </div>
+
+  <!-- Основний скрипт, що забезпечує роботу карти -->
+  <script>
+  // Оригінальний скрипт вимкнено: він був замінений на Leaflet‑версію.
+  if (false) {
+  document.addEventListener('DOMContentLoaded', function () {
+    // Діапазон дат для таймлайна
+    const startDate = new Date(Date.UTC(2021, 0, 1));
+    const endDate = new Date(Date.UTC(2025, 11, 31));
+    const monthsDiff = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
+
+    // Отримання DOM-елементів
+    const mapContainer = document.getElementById('mapContainer');
+    const worldMap = document.getElementById('worldMap');
+    const nasaOverlay = document.getElementById('nasaOverlay');
+    const timeSlider = document.getElementById('timeSlider');
+    const timeLabel = document.getElementById('timeLabel');
+    const timeUnitSelect = document.getElementById('timeUnit');
+    const categorySelect = document.getElementById('categorySelect');
+    const instrumentSelect = document.getElementById('instrumentSelect');
+    const eventListEl = document.getElementById('eventList');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const stepBackwardBtn = document.getElementById('stepBackwardBtn');
+    const stepForwardBtn = document.getElementById('stepForwardBtn');
+
+    let playInterval = null;
+
+    // Base64-кодоване зображення світу (JPEG), розділене на рядки для зручності
+    const base64ImgParts = [
+      '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAoHBwgHBgoICAgLCgoLDhgQDg0NDh0VFhEYIx8lJCIfIiEmKzcvJik0KSEiMEExNDk7Pj4+JS5ESUM8SDc9Pjv/2wBDAQoLCw4NDhwQEBw7KCIoOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozv/wAARCAKqBAADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDzuiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoo',
+      'ooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKMj1oyP7w/OgAooU7jhf',
+      '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'
+    ];
+    // Перевизначаємо джерело фону: використовуємо знімок True Color із сервісу NASA GIBS
+    worldMap.src = 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?service=WMS&request=GetMap&version=1.1.1&layers=MODIS_Terra_CorrectedReflectance_TrueColor&styles=&format=image/jpeg&bbox=-180,-90,180,90&width=2048&height=1024&srs=EPSG:4326';
+    // Очищаємо фоновий колір, оскільки тепер є зображення карти
+    worldMap.style.backgroundColor = '';
+
+    // Налаштування повзунка за замовчуванням (для місяців)
+    timeSlider.max = monthsDiff.toString();
+    timeSlider.value = '0';
+
+    // Змінні для розміру та переміщення карти
+    let mapWidth = 1;
+    let mapHeight = 1;
+    let scale = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    const markers = [];
+    let highlightRect = null;
+
+    // Форматує дату у вигляді YYYY-MM-DD
+    function formatDateISO(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    // Обчислює дату для певного значення повзунка
+    function computeDateFromSlider(sliderValue) {
+      let monthsToAdd;
+      if (timeUnitSelect.value === 'month') {
+        monthsToAdd = sliderValue;
+      } else if (timeUnitSelect.value === 'season') {
+        monthsToAdd = sliderValue * 3;
+      } else {
+        monthsToAdd = sliderValue * 12;
+      }
+      const newDate = new Date(startDate);
+      newDate.setMonth(startDate.getMonth() + monthsToAdd);
+      return newDate;
+    }
+
+    // Оновлює напис таймлайна та події
+    function updateTimeLabel() {
+      const sliderValue = parseInt(timeSlider.value, 10);
+      let unitMultiplier;
+      if (timeUnitSelect.value === 'month') {
+        unitMultiplier = 1;
+      } else if (timeUnitSelect.value === 'season') {
+        unitMultiplier = 3;
+      } else {
+        unitMultiplier = 12;
+      }
+      const totalMonths = sliderValue * unitMultiplier;
+      const baseYear = 2021;
+      const baseMonthIndex = 0;
+      const yearOffset = Math.floor((baseMonthIndex + totalMonths) / 12);
+      const year = baseYear + yearOffset;
+      const monthIndex = (baseMonthIndex + totalMonths) % 12;
+      const month = String(monthIndex + 1).padStart(2, '0');
+      timeLabel.textContent = `${year}-${month}`;
+      updateNasaLayer(instrumentSelect.value);
+      updateEvents();
+    }
+
+    // Конвертує координати широти/довготи в пікселі
+    function latLonToPixels(lat, lon) {
+      const x = ((lon + 180) / 360) * mapWidth * scale + translateX;
+      const y = ((90 - lat) / 180) * mapHeight * scale + translateY;
+      return { x, y };
+    }
+
+    // Оновлює трансформації для карти та шару NASA
+    function updateMapTransform() {
+      const transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+      worldMap.style.transform = transform;
+      nasaOverlay.style.transform = transform;
+      updateMarkerPositions();
+      updateHighlight();
+    }
+
+    function updateMarkerPositions() {
+      markers.forEach(markerEl => {
+        const lat = parseFloat(markerEl.dataset.lat);
+        const lon = parseFloat(markerEl.dataset.lon);
+        const pos = latLonToPixels(lat, lon);
+        markerEl.style.left = `${pos.x}px`;
+        markerEl.style.top = `${pos.y}px`;
+      });
+    }
+
+    function updateHighlight() {
+      if (!highlightRect) return;
+      const lat = parseFloat(highlightRect.dataset.lat);
+      const lon = parseFloat(highlightRect.dataset.lon);
+      const ne = latLonToPixels(lat + 1.0, lon + 1.5);
+      const sw = latLonToPixels(lat - 1.0, lon - 1.5);
+      const left = Math.min(ne.x, sw.x);
+      const top = Math.min(ne.y, sw.y);
+      const width = Math.abs(ne.x - sw.x);
+      const height = Math.abs(ne.y - sw.y);
+      highlightRect.style.left = `${left}px`;
+      highlightRect.style.top = `${top}px`;
+      highlightRect.style.width = `${width}px`;
+      highlightRect.style.height = `${height}px`;
+    }
+
+    function panToEvent(ev) {
+      const containerWidth = mapContainer.clientWidth;
+      const containerHeight = mapContainer.clientHeight;
+      const pos = latLonToPixels(ev.location.lat, ev.location.lon);
+      translateX += containerWidth / 2 - pos.x;
+      translateY += containerHeight / 2 - pos.y;
+      updateMapTransform();
+    }
+
+    // Дані про події
+    const events = [
+      {
+        id: 1,
+        name: 'Распутиця у Східній Європі',
+        date: '2022-03-15',
+        category: 'mixed',
+        country: 'Україна',
+        location: { lat: 49.5, lon: 31.3 },
+        description: 'Весняне бездоріжжя (распутиця) у Східній Європі у 2022 році суттєво вплинуло на логістику військових операцій.',
+        source: 'https://war.obozrevatel.com/ukr/vid-voroga-zahischae-navit-ukrainska-zemlya-chotiri-tanki-okupantiv-na-sumschini-zastryagli-u-bagnyutsi-video.htm'
+      },
+      {
+        id: 2,
+        name: 'Спека на Близькому Сході',
+        date: '2023-07-20',
+        category: 'warm',
+        country: 'Ірак',
+        location: { lat: 32.5, lon: 44.4 },
+        description: 'Тривала спека у липні 2023 року вплинула на бойові дії, спричинивши проблеми із забезпеченням водою та технікою.',
+        source: 'https://zaborona.com/lypen-2023-roku-stane-najgaryachishym-za-45-rokiv-pro-shho-cze-nam-kazhe/'
+      },
+      {
+        id: 3,
+        name: 'Повені у Судані',
+        date: '2021-09-05',
+        category: 'mixed',
+        country: 'Судан',
+        location: { lat: 15.6, lon: 32.5 },
+        description: 'У 2021 році сильні повені на території Судану зруйнували інфраструктуру та ускладнили проведення бойових дій.',
+        source: 'https://day.kyiv.ua/news/271221-vnaslidok-poveney-i-sylnykh-zlyv-v-sudani-zahynulo-shchonaymenshe-60-osib'
+      },
+      {
+        id: 4,
+        name: 'Дефіцит води у Сахелі',
+        date: '2024-04-10',
+        category: 'cold',
+        country: 'Малі',
+        location: { lat: 17.5, lon: -3.0 },
+        description: 'Посуха у регіоні Сахель у 2024 році призвела до нестачі води, що вплинуло на здатність здійснювати військові операції.',
+        source: 'https://www.worldweatherattribution.org/extreme-sahel-heatwave-that-hit-highly-vulnerable-population-at-the-end-of-ramadan-would-not-have-occurred-without-climate-change/'
+      },
+      {
+        id: 5,
+        name: 'Снігові бурі в Кавказькому регіоні',
+        date: '2025-01-12',
+        category: 'cold',
+        country: 'Грузія',
+        location: { lat: 42.3, lon: 43.4 },
+        description: 'На початку 2025 року сильні снігові бурі в горах Кавказу створили труднощі для руху військової техніки.',
+        source: 'https://1tv.ge/lang/en/news/avalanche-hazard-forces-temporary-road-closure-on-gudauri-kobi-section/'
+      }
+    ];
+
+    function clearOverlays() {
+      markers.forEach(m => m.remove());
+      markers.length = 0;
+      if (highlightRect) {
+        highlightRect.remove();
+        highlightRect = null;
+      }
+    }
+
+    // Оновлює список подій та маркери
+    function updateEvents() {
+      clearOverlays();
+      eventListEl.innerHTML = '';
+      const sliderValue = parseInt(timeSlider.value, 10);
+      const currentDate = computeDateFromSlider(sliderValue);
+      const category = categorySelect.value;
+      const visibleEvents = events.filter(ev => {
+        const evDate = new Date(ev.date);
+        const dateMatch = evDate <= currentDate;
+        const categoryMatch = (category === 'all') || (ev.category === category);
+        return dateMatch && categoryMatch;
+      });
+      visibleEvents.forEach(ev => {
+        const item = document.createElement('div');
+        item.className = 'event-item';
+        item.innerHTML = `<strong>${ev.name}</strong><br><small>${ev.date} – ${ev.country}</small>`;
+        eventListEl.appendChild(item);
+        const markerEl = document.createElement('div');
+        markerEl.className = 'marker';
+        markerEl.dataset.lat = ev.location.lat;
+        markerEl.dataset.lon = ev.location.lon;
+        markerEl.title = ev.name;
+        mapContainer.appendChild(markerEl);
+        markers.push(markerEl);
+        item.addEventListener('click', () => {
+          if (highlightRect) {
+            highlightRect.remove();
+            highlightRect = null;
+          }
+          highlightRect = document.createElement('div');
+          highlightRect.className = 'highlight-rect';
+          highlightRect.dataset.lat = ev.location.lat;
+          highlightRect.dataset.lon = ev.location.lon;
+          mapContainer.appendChild(highlightRect);
+          updateHighlight();
+          panToEvent(ev);
+        });
+        markerEl.addEventListener('mouseenter', () => {
+          const tooltip = document.createElement('div');
+          tooltip.className = 'event-tooltip';
+          tooltip.style.position = 'absolute';
+          tooltip.style.background = 'rgba(255,255,255,0.95)';
+          tooltip.style.border = '1px solid #ccc';
+          tooltip.style.padding = '4px 6px';
+          tooltip.style.borderRadius = '4px';
+          tooltip.style.fontSize = '0.75rem';
+          tooltip.innerHTML = `<strong>${ev.name}</strong><br>${ev.description} <br><a href=\"${ev.source}\" target=\"_blank\">Джерело</a>`;
+          mapContainer.appendChild(tooltip);
+          function positionTooltip() {
+            const pos = latLonToPixels(ev.location.lat, ev.location.lon);
+            tooltip.style.left = `${pos.x + 10}px`;
+            tooltip.style.top = `${pos.y - 10}px`;
+          }
+          positionTooltip();
+          markerEl.addEventListener('mousemove', positionTooltip);
+          markerEl.addEventListener('mouseleave', () => {
+            tooltip.remove();
+            markerEl.removeEventListener('mousemove', positionTooltip);
+          }, { once: true });
+        });
+      });
+      updateMarkerPositions();
+    }
+
+    /**
+     * Завантажує накладку NASA для вибраного інструменту.
+     * Веб‑сервіс GIBS (https://gibs.earthdata.nasa.gov/) надає плитки WMS/WMTS
+     * з багатьма шарами для MODIS, CERES, MOPITT, MISR та ASTER. Ми будуємо URL
+     * запиту GetMap з рівнем зображення "best" та географічною проекцією
+     * EPSG:4326. Зображення охоплює всю Землю (bbox=-180,-90,180,90) та підлаштовується
+     * під розміри нашої карти (mapWidth x mapHeight). У випадку проблем із
+     * завантаженням віддаленого шару, буде використаний відтінений шар worldMap як
+     * запасний варіант.
+     */
+    function updateNasaLayer(instrument) {
+      // Якщо обрано "Без шару", приховуємо накладку
+      if (instrument === 'none') {
+        nasaOverlay.style.display = 'none';
+        return;
+      }
+      // Базові параметри запиту WMS
+      const baseUrl = 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi';
+      // Визначаємо ідентифікатор шару для кожного інструмента
+      let layerName = null;
+      switch (instrument) {
+        case 'modis':
+          layerName = 'MODIS_Terra_CorrectedReflectance_TrueColor';
+          break;
+        case 'ceres':
+          // CERES Energy Balance. Використовуємо щомісячний продукт TOA Net Flux.
+          layerName = 'CERES_NETFLUX_Monthly';
+          break;
+        case 'mopitt':
+          layerName = 'MOP_CO_Monthly';
+          break;
+        case 'misr':
+          // MISR смуга середнього значення аерозольної оптичної товщини
+          layerName = 'MISR_Combined_Aerosol_Dark_Target_Optical_Depth_Monthly';
+          break;
+        case 'aster':
+          // ASTER DEM. Використовуємо глобальну топографічну карту.
+          layerName = 'ASTER_GDEM_Color_Index';
+          break;
+        default:
+          layerName = null;
+      }
+      if (!layerName) {
+        nasaOverlay.style.display = 'none';
+        return;
+      }
+      // Будуємо URL для запиту GetMap
+      const bbox = '-180,-90,180,90';
+      const width = Math.round(mapWidth);
+      const height = Math.round(mapHeight);
+      const params = [
+        'service=WMS',
+        'request=GetMap',
+        'version=1.1.1',
+        `layers=${encodeURIComponent(layerName)}`,
+        'styles=',
+        'format=image/png',
+        `bbox=${bbox}`,
+        `width=${width}`,
+        `height=${height}`,
+        'srs=EPSG:4326',
+        // За можливості вказуємо дату (час побудови) для місячного шару
+        `time=${timeLabel.textContent}-01`
+      ].join('&');
+      const url = `${baseUrl}?${params}`;
+      // Завантажуємо зображення. Якщо виникне помилка, використовуємо відтінений шар.
+      nasaOverlay.onload = function () {
+        nasaOverlay.style.display = 'block';
+        nasaOverlay.style.filter = 'none';
+      };
+      nasaOverlay.onerror = function () {
+        // При помилці відображаємо worldMap та накладаємо кольоровий фільтр
+        nasaOverlay.src = worldMap.src;
+        nasaOverlay.style.display = 'block';
+        let hue = 0;
+        switch (instrument) {
+          case 'ceres': hue = 60; break;
+          case 'mopitt': hue = 160; break;
+          case 'misr': hue = 240; break;
+          case 'aster': hue = 320; break;
+          default: hue = 0;
+        }
+        nasaOverlay.style.filter = `hue-rotate(${hue}deg)`;
+      };
+      // Встановлюємо URL; браузер викликає onload/onerror
+      nasaOverlay.src = url;
+    }
+
+    // Коригує повзунок при зміні одиниці часу
+    function adjustSliderRange() {
+      let multiplier;
+      if (timeUnitSelect.value === 'month') {
+        multiplier = 1;
+      } else if (timeUnitSelect.value === 'season') {
+        multiplier = 3;
+      } else {
+        multiplier = 12;
+      }
+      timeSlider.step = '1';
+      timeSlider.max = Math.floor(monthsDiff / multiplier).toString();
+      if (parseInt(timeSlider.value, 10) > parseInt(timeSlider.max, 10)) {
+        timeSlider.value = timeSlider.max;
+      }
+      updateTimeLabel();
+    }
+
+    // Ініціалізація карти після завантаження зображення
+    worldMap.addEventListener('load', function () {
+      mapWidth = worldMap.naturalWidth || mapContainer.clientWidth;
+      mapHeight = worldMap.naturalHeight || mapContainer.clientHeight;
+      const cw = mapContainer.clientWidth;
+      const ch = mapContainer.clientHeight;
+      if (mapWidth > 0 && mapHeight > 0) {
+        scale = Math.max(cw / mapWidth, ch / mapHeight);
+      } else {
+        scale = 1;
+      }
+      translateX = (cw - mapWidth * scale) / 2;
+      translateY = (ch - mapHeight * scale) / 2;
+      updateMapTransform();
+      updateTimeLabel();
+    });
+
+    // Події для перетягування
+    mapContainer.addEventListener('mousedown', function (e) {
+      isDragging = true;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      mapContainer.style.cursor = 'grabbing';
+    });
+    window.addEventListener('mousemove', function (e) {
+      if (!isDragging) return;
+      const dx = e.clientX - dragStartX;
+      const dy = e.clientY - dragStartY;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      translateX += dx;
+      translateY += dy;
+      updateMapTransform();
+    });
+    window.addEventListener('mouseup', function () {
+      if (isDragging) {
+        isDragging = false;
+        mapContainer.style.cursor = 'grab';
+      }
+    });
+    // Зміна масштабу колесом миші
+    mapContainer.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      const rect = mapContainer.getBoundingClientRect();
+      const cx = e.clientX - rect.left;
+      const cy = e.clientY - rect.top;
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      translateX = cx - (cx - translateX) * delta;
+      translateY = cy - (cy - translateY) * delta;
+      scale *= delta;
+      updateMapTransform();
+    }, { passive: false });
+
+    // Події інтерфейсу
+    timeSlider.addEventListener('input', updateTimeLabel);
+    timeUnitSelect.addEventListener('change', adjustSliderRange);
+    categorySelect.addEventListener('change', updateEvents);
+    instrumentSelect.addEventListener('change', () => {
+      updateNasaLayer(instrumentSelect.value);
+    });
+    playPauseBtn.addEventListener('click', function () {
+      if (playInterval) {
+        clearInterval(playInterval);
+        playInterval = null;
+        playPauseBtn.textContent = '▶';
+      } else {
+        playPauseBtn.textContent = '❚❚';
+        playInterval = setInterval(function () {
+          const maxVal = parseInt(timeSlider.max, 10);
+          let val = parseInt(timeSlider.value, 10);
+          if (val < maxVal) {
+            val += 1;
+            timeSlider.value = val.toString();
+            updateTimeLabel();
+          } else {
+            clearInterval(playInterval);
+            playInterval = null;
+            playPauseBtn.textContent = '▶';
+          }
+        }, 1500);
+      }
+    });
+    stepBackwardBtn.addEventListener('click', function () {
+      const val = parseInt(timeSlider.value, 10);
+      if (val > 0) {
+        timeSlider.value = (val - 1).toString();
+        updateTimeLabel();
+      }
+    });
+    stepForwardBtn.addEventListener('click', function () {
+      const val = parseInt(timeSlider.value, 10);
+      const maxVal = parseInt(timeSlider.max, 10);
+      if (val < maxVal) {
+        timeSlider.value = (val + 1).toString();
+        updateTimeLabel();
+      }
+    });
+
+    // Початкова ініціалізація
+    adjustSliderRange();
+  });
+  }
+  </script>
+
+  <!-- Підключаємо бібліотеку Leaflet та наш скрипт інтерактивної карти -->
+  <script
+  src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin=""
+  onerror="var s=document.createElement('script');s.src='https://unpkg.com/leaflet/dist/leaflet.js';document.head.appendChild(s);">
+</script>
+  <script src="js/leaflet_map.js"></script>
+</body>
+</html>
